@@ -30,6 +30,8 @@ export function initGlobe(container) {
   renderer.domElement.style.display = 'block'
   renderer.domElement.style.width = '100%'
   renderer.domElement.style.height = '100%'
+  renderer.domElement.style.cursor = 'grab'
+  renderer.domElement.style.pointerEvents = 'auto'
   container.appendChild(renderer.domElement)
 
   // Sun light from the side for day/night effect
@@ -166,13 +168,16 @@ function addStars(count) {
 }
 
 function setupControls(container) {
-  container.addEventListener('mousedown', (e) => {
+  const el = renderer.domElement
+
+  el.addEventListener('mousedown', (e) => {
     isDragging = true
     autoRotate = false
+    el.style.cursor = 'grabbing'
     lastMouse = { x: e.clientX, y: e.clientY }
   })
 
-  container.addEventListener('mousemove', (e) => {
+  window.addEventListener('mousemove', (e) => {
     if (!isDragging) return
     const dx = e.clientX - lastMouse.x
     const dy = e.clientY - lastMouse.y
@@ -182,42 +187,22 @@ function setupControls(container) {
     lastMouse = { x: e.clientX, y: e.clientY }
   })
 
-  container.addEventListener('mouseup', () => {
-    isDragging = false
-    setTimeout(() => { autoRotate = true }, 3000)
-  })
-
-  container.addEventListener('mouseleave', () => {
-    isDragging = false
-  })
-
-  // Scroll zoom — capture scroll when hovering, release when fully zoomed out
-  const MIN_ZOOM = 1.5
-  const MAX_ZOOM = 6
-  let isZoomedIn = false
-
-  container.addEventListener('wheel', (e) => {
-    const zoomSpeed = 0.002
-    const newZ = camera.position.z + e.deltaY * zoomSpeed
-
-    // Clamp zoom
-    camera.position.z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZ))
-    isZoomedIn = camera.position.z < MAX_ZOOM - 0.1
-
-    // Only prevent page scroll if zoomed in (or zooming in)
-    if (isZoomedIn) {
-      e.preventDefault()
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false
+      el.style.cursor = 'grab'
+      setTimeout(() => { autoRotate = true }, 3000)
     }
-    // If fully zoomed out and scrolling out, let page scroll happen naturally
-  }, { passive: false })
+  })
 
-  container.addEventListener('touchstart', (e) => {
+  // Touch support
+  el.addEventListener('touchstart', (e) => {
     isDragging = true
     autoRotate = false
     lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }, { passive: true })
 
-  container.addEventListener('touchmove', (e) => {
+  window.addEventListener('touchmove', (e) => {
     if (!isDragging) return
     const dx = e.touches[0].clientX - lastMouse.x
     const dy = e.touches[0].clientY - lastMouse.y
@@ -227,7 +212,7 @@ function setupControls(container) {
     lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }, { passive: true })
 
-  container.addEventListener('touchend', () => {
+  window.addEventListener('touchend', () => {
     isDragging = false
     setTimeout(() => { autoRotate = true }, 3000)
   })
