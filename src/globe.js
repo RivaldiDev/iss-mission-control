@@ -60,11 +60,11 @@ export function initGlobe(container) {
   addGridLine(23.5, 0xc47a50, 0.04) // tropic of cancer
   addGridLine(-23.5, 0xc47a50, 0.04) // tropic of capricorn
 
-  // ISS Marker (glowing dot)
+  // ISS Marker (glowing dot) — child of globe so it rotates with it
   const issGeo = new THREE.SphereGeometry(0.025, 16, 16)
   const issMat = new THREE.MeshBasicMaterial({ color: 0xc47a50 })
   issMarker = new THREE.Mesh(issGeo, issMat)
-  scene.add(issMarker)
+  globe.add(issMarker)
 
   // ISS glow ring
   const ringGeo = new THREE.RingGeometry(0.03, 0.05, 32)
@@ -77,7 +77,7 @@ export function initGlobe(container) {
   const ring = new THREE.Mesh(ringGeo, ringMat)
   issMarker.add(ring)
 
-  // Orbit trail
+  // Orbit trail — also child of globe
   const trailMat = new THREE.LineBasicMaterial({
     color: 0xc47a50,
     transparent: true,
@@ -85,7 +85,7 @@ export function initGlobe(container) {
   })
   const trailGeo = new THREE.BufferGeometry()
   orbitTrail = new THREE.Line(trailGeo, trailMat)
-  scene.add(orbitTrail)
+  globe.add(orbitTrail)
 
   // Stars
   addStars(1500)
@@ -214,9 +214,6 @@ function animate() {
 
   globe.rotation.x += (targetRotation.x - globe.rotation.x) * 0.05
   globe.rotation.y += (targetRotation.y - globe.rotation.y) * 0.05
-
-  // Sync ISS marker rotation with globe
-  issMarker.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0)
 
   // Pulse ISS marker
   const pulse = 1 + Math.sin(Date.now() * 0.003) * 0.3
