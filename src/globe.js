@@ -27,6 +27,9 @@ export function initGlobe(container) {
   }
   renderer.setSize(width, height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.domElement.style.display = 'block'
+  renderer.domElement.style.width = '100%'
+  renderer.domElement.style.height = '100%'
   container.appendChild(renderer.domElement)
 
   // Sun light from the side for day/night effect
