@@ -66,25 +66,34 @@ export function initGlobe(container) {
   const clouds = new THREE.Mesh(cloudsGeo, cloudsMat)
   globe.add(clouds)
 
-  // Atmosphere edge glow - gradient sphere, no sharp edges
-  const glowGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.08, 64, 64)
-  const glowCanvas = document.createElement('canvas')
-  glowCanvas.width = 512
-  glowCanvas.height = 512
-  const ctx = glowCanvas.getContext('2d')
-  const gradient = ctx.createRadialGradient(256, 256, 180, 256, 256, 256)
-  gradient.addColorStop(0, 'rgba(74, 144, 217, 0)')
-  gradient.addColorStop(0.7, 'rgba(74, 144, 217, 0)')
-  gradient.addColorStop(1, 'rgba(74, 144, 217, 0.15)')
-  ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, 512, 512)
-  const glowTexture = new THREE.CanvasTexture(glowCanvas)
-  const glowMat = new THREE.MeshBasicMaterial({
-    map: glowTexture,
-    transparent: true,
-    opacity: 0.6,
+  // Atmosphere edge glow
+  const glowGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.15, 64, 64)
+  const glowMat = new THREE.ShaderMaterial({
+    uniforms: {
+      glowColor: { value: new THREE.Color(0x4a90d9) },
+      viewVector: { value: camera.position },
+    },
+    vertexShader: `
+      uniform vec3 viewVector;
+      varying float intensity;
+      void main() {
+        vec3 vNormal = normalize(normalMatrix * normal);
+        vec3 vNormel = normalize(normalMatrix * viewVector);
+        intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 glowColor;
+      varying float intensity;
+      void main() {
+        vec3 glow = glowColor * intensity;
+        gl_FragColor = vec4(glow, intensity * 0.6);
+      }
+    `,
     side: THREE.BackSide,
-    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
   })
   const glow = new THREE.Mesh(glowGeo, glowMat)
   scene.add(glow)
@@ -179,11 +188,24 @@ function setupControls(container) {
     isDragging = false
   })
 
-  // Scroll zoom
+  // Scroll zoom — capture scroll when hovering, release when fully zoomed out
+  const MIN_ZOOM = 1.5
+  const MAX_ZOOM = 6
+  let isZoomedIn = false
+
   container.addEventListener('wheel', (e) => {
-    e.preventDefault()
-    const zoomSpeed = 0.001
-    camera.position.z = Math.max(1.5, Math.min(6, camera.position.z + e.deltaY * zoomSpeed))
+    const zoomSpeed = 0.002
+    const newZ = camera.position.z + e.deltaY * zoomSpeed
+
+    // Clamp zoom
+    camera.position.z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZ))
+    isZoomedIn = camera.position.z < MAX_ZOOM - 0.1
+
+    // Only prevent page scroll if zoomed in (or zooming in)
+    if (isZoomedIn) {
+      e.preventDefault()
+    }
+    // If fully zoomed out and scrolling out, let page scroll happen naturally
   }, { passive: false })
 
   container.addEventListener('touchstart', (e) => {
