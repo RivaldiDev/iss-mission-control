@@ -1,5 +1,5 @@
-const ISS_API = 'https://api.open-notify.org/iss-now.json'
-const ASTROS_API = 'https://api.open-notify.org/astros.json'
+const ISS_API = '/api/iss-now.json'
+const ASTROS_API = '/api/astros.json'
 
 export async function fetchISSPosition() {
   const res = await fetch(ISS_API)
