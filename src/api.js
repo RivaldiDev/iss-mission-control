@@ -1,8 +1,13 @@
-const ISS_API = '/api/iss-now.json'
-const ASTROS_API = '/api/astros.json'
+// Use Vercel serverless function proxy (works in prod)
+// Falls back to Vite proxy (works in dev)
+const isDev = import.meta.env?.DEV
+
+const ISS_API = isDev ? '/api/iss-now.json' : '/api/iss?path=now'
+const ASTROS_API = isDev ? '/api/astros.json' : '/api/iss?path=astros'
 
 export async function fetchISSPosition() {
   const res = await fetch(ISS_API)
+  if (!res.ok) throw new Error(`ISS API failed: ${res.status}`)
   const data = await res.json()
   return {
     latitude: parseFloat(data.iss_position.latitude),
@@ -13,6 +18,7 @@ export async function fetchISSPosition() {
 
 export async function fetchAstronauts() {
   const res = await fetch(ASTROS_API)
+  if (!res.ok) throw new Error(`Astros API failed: ${res.status}`)
   const data = await res.json()
   return {
     count: data.number,
