@@ -24,8 +24,11 @@ export function initGlobe(container) {
   camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100)
   camera.position.z = 3
 
-  // Renderer
+  // Renderer — fail explicitly if WebGL unavailable
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+  if (!renderer.getContext()) {
+    throw new Error('WebGL context not available')
+  }
   renderer.setSize(width, height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   container.appendChild(renderer.domElement)

@@ -115,12 +115,16 @@ Alpine.data('issTracker', () => ({
 
       this.lastPos = { latitude: issData.latitude, longitude: issData.longitude }
 
-      // Init globe
-      const container = document.getElementById('globe-container')
-      if (container) {
-        initGlobe(container)
-        updateISSPosition(issData.latitude, issData.longitude)
-        this.globeReady = true
+      // Init globe (non-fatal — WebGL may not be available)
+      try {
+        const container = document.getElementById('globe-container')
+        if (container) {
+          initGlobe(container)
+          updateISSPosition(issData.latitude, issData.longitude)
+          this.globeReady = true
+        }
+      } catch (globeErr) {
+        console.warn('Globe init failed:', globeErr.message)
       }
 
       // Animate entrance with Motion One
@@ -130,6 +134,7 @@ Alpine.data('issTracker', () => ({
       this.interval = setInterval(() => this.pollISS(), 5000)
 
     } catch (err) {
+      console.error('ISS init error:', err.message)
       store.error = err.message
       store.loading = false
     }
