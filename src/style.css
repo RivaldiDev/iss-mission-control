@@ -83,14 +83,10 @@ body {
   border: 1px solid var(--color-border);
 }
 
-/* Globe container */
+/* Globe container — full viewport */
 #globe-container {
   width: 100%;
-  aspect-ratio: 1;
-  max-width: 500px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
+  height: 100%;
 }
 
 /* Scrollbar */
