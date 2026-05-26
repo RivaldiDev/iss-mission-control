@@ -48,7 +48,11 @@
 
         <!-- 3D Globe -->
         <div class="mt-16" data-animate="globe" data-parallax>
-          <div id="globe-container" class="cursor-grab active:cursor-grabbing"></div>
+          <div id="globe-container" class="cursor-grab active:cursor-grabbing" style="min-height: 400px;"></div>
+          <div id="globe-fallback" class="hidden text-center py-20 text-[var(--color-text-muted)]">
+            <p class="text-2xl mb-2">🌍</p>
+            <p class="text-sm font-mono">WebGL not available — 3D globe requires GPU support</p>
+          </div>
           <p class="text-xs text-[var(--color-text-muted)] mt-4 font-mono">Drag to rotate · Auto-updates every 5s</p>
         </div>
       </header>

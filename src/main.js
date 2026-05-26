@@ -125,6 +125,8 @@ Alpine.data('issTracker', () => ({
         }
       } catch (globeErr) {
         console.warn('Globe init failed:', globeErr.message)
+        const fallback = document.getElementById('globe-fallback')
+        if (fallback) fallback.classList.remove('hidden')
       }
 
       // Animate entrance with Motion One
