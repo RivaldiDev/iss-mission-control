@@ -15,18 +15,27 @@
     <!-- Scroll progress bar -->
     <div data-scroll-progress class="fixed top-0 left-0 right-0 h-0.5 bg-[var(--color-accent)] origin-left z-50" style="transform: scaleX(0)"></div>
 
-    <!-- Main Content -->
+    <!-- 3D Globe — sticky background, behind everything -->
+    <div class="fixed inset-0 z-0" data-animate="globe">
+      <div id="globe-container" class="cursor-grab active:cursor-grabbing w-full h-full"></div>
+      <div id="globe-fallback" class="hidden absolute inset-0 flex items-center justify-center text-[var(--color-text-muted)]">
+        <div class="text-center">
+          <p class="text-2xl mb-2">🌍</p>
+          <p class="text-sm font-mono">WebGL not available</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content — scrolls over the globe -->
     <div class="relative z-10">
 
-      <!-- Hero: editorial, not generic SaaS -->
+      <!-- Hero -->
       <header class="min-h-screen flex flex-col justify-center px-6 py-20 max-w-5xl mx-auto">
         <div data-animate="hero">
-          <!-- Eyebrow -->
           <p class="text-xs font-mono tracking-widest uppercase text-[var(--color-accent)] mb-6">
             Live orbital tracking
           </p>
 
-          <!-- Title: solid color, NO gradient text, emphasis via size + weight -->
           <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-6 text-[var(--color-text-primary)]">
             Mission<br />Control
           </h1>
@@ -35,7 +44,6 @@
             The International Space Station orbits Earth every 92 minutes at 27,600 km/h. Track it in real-time.
           </p>
 
-          <!-- Position readout — inline, not a card -->
           <div class="flex items-center gap-4 text-sm font-mono">
             <span class="text-[var(--color-text-muted)]">ISS Position</span>
             <span class="w-px h-4 bg-[var(--color-border)]"></span>
@@ -45,139 +53,128 @@
             <span class="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse ml-2"></span>
           </div>
         </div>
+
+        <p class="mt-12 text-xs text-[var(--color-text-muted)] font-mono">Drag to rotate · Scroll to zoom · Auto-updates every 5s</p>
       </header>
 
-      <!-- 3D Globe — full viewport -->
-      <section class="relative w-full bg-[var(--color-bg)]" data-animate="globe">
-        <div id="globe-container" class="cursor-grab active:cursor-grabbing w-full" style="height: 100vh;"></div>
-        <div id="globe-fallback" class="hidden text-center py-20 text-[var(--color-text-muted)]">
-          <p class="text-2xl mb-2">🌍</p>
-          <p class="text-sm font-mono">WebGL not available — 3D globe requires GPU support</p>
-        </div>
-        <p class="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs text-[var(--color-text-muted)] font-mono">Drag to rotate · Scroll to zoom · Auto-updates every 5s</p>
-      </section>
-
-      <!-- Stats: VARIED layouts, NOT identical hero-metric cards -->
+      <!-- Stats -->
       <section class="px-6 py-20 max-w-5xl mx-auto">
-        <div class="grid grid-cols-12 gap-4">
+        <div class="backdrop-blur-md bg-[var(--color-canvas)]/80 rounded-2xl p-8 border border-[var(--color-border-subtle)]">
+          <div class="grid grid-cols-12 gap-4">
 
-          <!-- Speed: large, spans 8 cols, horizontal layout -->
-          <div class="col-span-12 md:col-span-8 stat-card rounded-xl p-6 flex items-baseline gap-4" data-animate="stat">
-            <span class="text-5xl font-bold font-mono text-[var(--color-accent)]">27,600</span>
-            <span class="text-sm text-[var(--color-text-muted)]">km/h orbital velocity</span>
-          </div>
-
-          <!-- Altitude: small, 4 cols, vertical -->
-          <div class="col-span-6 md:col-span-4 stat-card rounded-xl p-6" data-animate="stat">
-            <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Altitude</span>
-            <div class="mt-2">
-              <span class="text-3xl font-bold font-mono text-[var(--color-text-primary)]">408</span>
-              <span class="text-sm text-[var(--color-text-muted)] ml-1">km</span>
+            <div class="col-span-12 md:col-span-8 stat-card rounded-xl p-6 flex items-baseline gap-4" data-animate="stat">
+              <span class="text-5xl font-bold font-mono text-[var(--color-accent)]">27,600</span>
+              <span class="text-sm text-[var(--color-text-muted)]">km/h orbital velocity</span>
             </div>
-          </div>
 
-          <!-- Orbit: medium, 4 cols -->
-          <div class="col-span-6 md:col-span-4 stat-card rounded-xl p-6" data-animate="stat">
-            <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Orbit Period</span>
-            <div class="mt-2">
-              <span class="text-3xl font-bold font-mono text-[var(--color-text-primary)]">92</span>
-              <span class="text-sm text-[var(--color-text-muted)] ml-1">min</span>
-            </div>
-          </div>
-
-          <!-- Crew: medium, 8 cols, horizontal with live count -->
-          <div class="col-span-12 md:col-span-8 stat-card rounded-xl p-6 flex items-baseline gap-4" data-animate="stat">
-            <span class="text-5xl font-bold font-mono text-[var(--color-accent)]" x-text="$store.iss.crewCount || '—'"></span>
-            <span class="text-sm text-[var(--color-text-muted)]">humans currently in orbit</span>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- Crew: VARIED card sizes, not identical grid -->
-      <section class="px-6 py-20 max-w-5xl mx-auto">
-        <div class="flex items-baseline justify-between mb-8">
-          <h2 class="text-2xl font-bold tracking-tight">People in Space</h2>
-          <span class="text-sm font-mono text-[var(--color-accent)]" x-text="$store.iss.crewCount + ' crew'"></span>
-        </div>
-
-        <!-- Loading -->
-        <template x-if="$store.iss.loading">
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <template x-for="i in 6">
-              <div class="crew-card rounded-xl p-4 animate-pulse">
-                <div class="w-8 h-8 rounded bg-[var(--color-surface-raised)] mb-3"></div>
-                <div class="h-4 bg-[var(--color-surface-raised)] rounded w-3/4 mb-2"></div>
-                <div class="h-3 bg-[var(--color-surface-raised)] rounded w-1/2"></div>
+            <div class="col-span-6 md:col-span-4 stat-card rounded-xl p-6" data-animate="stat">
+              <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Altitude</span>
+              <div class="mt-2">
+                <span class="text-3xl font-bold font-mono text-[var(--color-text-primary)]">408</span>
+                <span class="text-sm text-[var(--color-text-muted)] ml-1">km</span>
               </div>
-            </template>
-          </div>
-        </template>
+            </div>
 
-        <!-- Crew Grid: first card featured (larger), rest compact -->
-        <template x-if="!$store.iss.loading">
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <template x-for="(person, index) in $store.iss.people" :key="person.name">
-              <div
-                class="rounded-xl p-4"
-                :class="index === 0 ? 'crew-card-featured col-span-2 md:col-span-2 p-6' : 'crew-card'"
-                data-animate="crew"
-              >
-                <!-- Index number as visual anchor -->
-                <div class="flex items-start justify-between mb-3">
-                  <span class="text-xs font-mono text-[var(--color-accent)]" x-text="'#' + String(index + 1).padStart(2, '0')"></span>
-                  <span class="text-xs text-[var(--color-text-muted)]" x-text="person.craft"></span>
+            <div class="col-span-6 md:col-span-4 stat-card rounded-xl p-6" data-animate="stat">
+              <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Orbit Period</span>
+              <div class="mt-2">
+                <span class="text-3xl font-bold font-mono text-[var(--color-text-primary)]">92</span>
+                <span class="text-sm text-[var(--color-text-muted)] ml-1">min</span>
+              </div>
+            </div>
+
+            <div class="col-span-12 md:col-span-8 stat-card rounded-xl p-6 flex items-baseline gap-4" data-animate="stat">
+              <span class="text-5xl font-bold font-mono text-[var(--color-accent)]" x-text="$store.iss.crewCount || '—'"></span>
+              <span class="text-sm text-[var(--color-text-muted)]">humans currently in orbit</span>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Crew -->
+      <section class="px-6 py-20 max-w-5xl mx-auto">
+        <div class="backdrop-blur-md bg-[var(--color-canvas)]/80 rounded-2xl p-8 border border-[var(--color-border-subtle)]">
+          <div class="flex items-baseline justify-between mb-8">
+            <h2 class="text-2xl font-bold tracking-tight">People in Space</h2>
+            <span class="text-sm font-mono text-[var(--color-accent)]" x-text="$store.iss.crewCount + ' crew'"></span>
+          </div>
+
+          <template x-if="$store.iss.loading">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <template x-for="i in 6">
+                <div class="crew-card rounded-xl p-4 animate-pulse">
+                  <div class="w-8 h-8 rounded bg-[var(--color-surface-raised)] mb-3"></div>
+                  <div class="h-4 bg-[var(--color-surface-raised)] rounded w-3/4 mb-2"></div>
+                  <div class="h-3 bg-[var(--color-surface-raised)] rounded w-1/2"></div>
                 </div>
-                <h3
-                  class="font-semibold leading-tight"
-                  :class="index === 0 ? 'text-xl' : 'text-sm'"
-                  x-text="person.name"
-                ></h3>
-                <!-- First card gets extra detail -->
-                <template x-if="index === 0">
-                  <p class="text-sm text-[var(--color-text-secondary)] mt-2">Currently aboard the International Space Station</p>
-                </template>
-              </div>
-            </template>
-          </div>
-        </template>
+              </template>
+            </div>
+          </template>
+
+          <template x-if="!$store.iss.loading">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <template x-for="(person, index) in $store.iss.people" :key="person.name">
+                <div
+                  class="rounded-xl p-4"
+                  :class="index === 0 ? 'crew-card-featured col-span-2 md:col-span-2 p-6' : 'crew-card'"
+                  data-animate="crew"
+                >
+                  <div class="flex items-start justify-between mb-3">
+                    <span class="text-xs font-mono text-[var(--color-accent)]" x-text="'#' + String(index + 1).padStart(2, '0')"></span>
+                    <span class="text-xs text-[var(--color-text-muted)]" x-text="person.craft"></span>
+                  </div>
+                  <h3
+                    class="font-semibold leading-tight"
+                    :class="index === 0 ? 'text-xl' : 'text-sm'"
+                    x-text="person.name"
+                  ></h3>
+                  <template x-if="index === 0">
+                    <p class="text-sm text-[var(--color-text-secondary)] mt-2">Currently aboard the International Space Station</p>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
       </section>
 
-      <!-- About: editorial text block, NOT a card -->
+      <!-- About -->
       <section class="px-6 py-20 max-w-3xl mx-auto" data-animate="about">
-        <h2 class="text-xl font-bold mb-4 tracking-tight">About the ISS</h2>
-        <div class="space-y-4 text-[var(--color-text-secondary)] text-[15px] leading-[1.7]">
-          <p>The International Space Station is a modular space station in low Earth orbit. It's the largest artificial object in space and can often be seen with the naked eye from Earth.</p>
-          <p>It orbits Earth approximately every 92 minutes at 27,600 km/h, completing about 15.5 orbits per day at roughly 408 km altitude.</p>
-        </div>
+        <div class="backdrop-blur-md bg-[var(--color-canvas)]/80 rounded-2xl p-8 border border-[var(--color-border-subtle)]">
+          <h2 class="text-xl font-bold mb-4 tracking-tight">About the ISS</h2>
+          <div class="space-y-4 text-[var(--color-text-secondary)] text-[15px] leading-[1.7]">
+            <p>The International Space Station is a modular space station in low Earth orbit. It's the largest artificial object in space and can often be seen with the naked eye from Earth.</p>
+            <p>It orbits Earth approximately every 92 minutes at 27,600 km/h, completing about 15.5 orbits per day at roughly 408 km altitude.</p>
+          </div>
 
-        <!-- Orbit details — varied layout, not cards -->
-        <div class="mt-10 grid grid-cols-2 gap-6" data-animate="orbit-info">
-          <div class="orbit-detail">
-            <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Orbits per day</span>
-            <p class="text-2xl font-bold font-mono mt-1">15.5</p>
+          <div class="mt-10 grid grid-cols-2 gap-6" data-animate="orbit-info">
+            <div class="orbit-detail">
+              <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Orbits per day</span>
+              <p class="text-2xl font-bold font-mono mt-1">15.5</p>
+            </div>
+            <div class="orbit-detail">
+              <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Mass</span>
+              <p class="text-2xl font-bold font-mono mt-1">420,000 <span class="text-sm text-[var(--color-text-muted)]">kg</span></p>
+            </div>
+            <div class="orbit-detail">
+              <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Length</span>
+              <p class="text-2xl font-bold font-mono mt-1">109 <span class="text-sm text-[var(--color-text-muted)]">m</span></p>
+            </div>
+            <div class="orbit-detail">
+              <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Launched</span>
+              <p class="text-2xl font-bold font-mono mt-1">1998</p>
+            </div>
           </div>
-          <div class="orbit-detail">
-            <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Mass</span>
-            <p class="text-2xl font-bold font-mono mt-1">420,000 <span class="text-sm text-[var(--color-text-muted)]">kg</span></p>
-          </div>
-          <div class="orbit-detail">
-            <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Length</span>
-            <p class="text-2xl font-bold font-mono mt-1">109 <span class="text-sm text-[var(--color-text-muted)]">m</span></p>
-          </div>
-          <div class="orbit-detail">
-            <span class="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-wider">Launched</span>
-            <p class="text-2xl font-bold font-mono mt-1">1998</p>
-          </div>
-        </div>
 
-        <p class="mt-8 text-xs text-[var(--color-text-muted)]">
-          Data: <a href="http://open-notify.org/" target="_blank" class="text-[var(--color-accent)] hover:underline">Open Notify API</a> · Updates every 5 seconds
-        </p>
+          <p class="mt-8 text-xs text-[var(--color-text-muted)]">
+            Data: <a href="http://open-notify.org/" target="_blank" class="text-[var(--color-accent)] hover:underline">Open Notify API</a> · Updates every 5 seconds
+          </p>
+        </div>
       </section>
 
       <!-- Footer -->
-      <footer class="px-6 py-8 border-t border-[var(--color-border-subtle)]">
+      <footer class="px-6 py-8 border-t border-[var(--color-border-subtle)] backdrop-blur-md bg-[var(--color-canvas)]/80">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--color-text-muted)]">
           <span>ISS Mission Control</span>
           <a href="https://github.com/RivaldiDev" target="_blank" class="text-[var(--color-accent)] hover:underline font-mono">github.com/RivaldiDev</a>
