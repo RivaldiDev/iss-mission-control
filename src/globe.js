@@ -188,6 +188,13 @@ function setupControls(container) {
     isDragging = false
   })
 
+  // Scroll zoom
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault()
+    const zoomSpeed = 0.001
+    camera.position.z = Math.max(1.5, Math.min(6, camera.position.z + e.deltaY * zoomSpeed))
+  }, { passive: false })
+
   container.addEventListener('touchstart', (e) => {
     isDragging = true
     autoRotate = false
