@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand: warm terracotta accent, tinted olive-sage neutrals */
+  --color-accent: oklch(0.62 0.14 45);
+  --color-accent-dim: oklch(0.62 0.14 45 / 0.15);
+  --color-accent-soft: oklch(0.62 0.14 45 / 0.08);
+
+  /* Neutrals tinted toward olive-sage (hue 140, very low chroma) */
+  --color-canvas: oklch(0.14 0.008 140);
+  --color-surface: oklch(0.17 0.010 140);
+  --color-surface-raised: oklch(0.20 0.012 140);
+  --color-surface-overlay: oklch(0.23 0.014 140);
+  --color-border: oklch(0.28 0.012 140);
+  --color-border-subtle: oklch(0.22 0.010 140);
+
+  /* Text hierarchy */
+  --color-text-primary: oklch(0.88 0.010 140);
+  --color-text-secondary: oklch(0.68 0.012 140);
+  --color-text-muted: oklch(0.50 0.010 140);
+
+  /* Semantic */
+  --color-danger: oklch(0.60 0.18 25);
+
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriCZOIHTWEBlwu8Q.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriCZOIHTWEBlwu8Q.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('https://fonts.gstatic.com/s/dmsans/v15/rP2Hp2ywxg089UriCZOIHTWEBlwu8Q.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Base */
+body {
+  background: var(--color-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+/* Stat card — solid bg, NO glassmorphism */
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  transition: border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: var(--color-accent);
+}
+
+/* Crew card — varied sizes, solid bg */
+.crew-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.crew-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+/* Featured crew card — larger */
+.crew-card-featured {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+}
+
+/* Globe container */
+#globe-container {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-canvas); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }

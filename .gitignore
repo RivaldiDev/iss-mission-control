@@ -1,0 +1,16 @@
+# Build
+dist/
+node_modules/
+
+# Plans (not for repo)
+PLAN.md
+REDESIGN_PLAN.md
+IMPLEMENTATION_SUMMARY.md
+
+# OS
+.DS_Store
+*.log
+
+# Env
+.env
+.env.local
