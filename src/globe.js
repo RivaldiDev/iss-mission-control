@@ -7,7 +7,7 @@ const ISS_ALTITUDE = 0.15
 let scene, camera, renderer, globe, issMarker, orbitTrail
 let trailPoints = []
 let animationId
-let targetRotation = { x: 0, y: 0 }
+let targetRotation = { x: 0.3, y: 0 }
 let isDragging = false
 let lastMouse = { x: 0, y: 0 }
 let autoRotate = true
@@ -16,15 +16,11 @@ export function initGlobe(container) {
   const width = container.clientWidth
   const height = container.clientHeight
 
-  // Scene
   scene = new THREE.Scene()
-  scene.background = null // transparent, starfield shows through
 
-  // Camera
   camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100)
-  camera.position.z = 3
+  camera.position.z = 2.8
 
-  // Renderer — fail explicitly if WebGL unavailable
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   if (!renderer.getContext()) {
     throw new Error('WebGL context not available')
@@ -33,67 +29,109 @@ export function initGlobe(container) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   container.appendChild(renderer.domElement)
 
-  // Globe (wireframe sphere)
-  const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 48)
-  const globeMat = new THREE.MeshBasicMaterial({
-    color: 0x2d3a2e,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.15
+  // Sun light from the side for day/night effect
+  const sunLight = new THREE.DirectionalLight(0xffffff, 2.5)
+  sunLight.position.set(5, 3, 5)
+  scene.add(sunLight)
+
+  const ambientLight = new THREE.AmbientLight(0x404060, 0.8)
+  scene.add(ambientLight)
+
+  // Earth textures from three-globe package (NASA Blue Marble)
+  const textureLoader = new THREE.TextureLoader()
+  const earthMap = textureLoader.load('https://unpkg.com/three-globe@2.35.1/example/img/earth-blue-marble.jpg')
+  const bumpMap = textureLoader.load('https://unpkg.com/three-globe@2.35.1/example/img/earth-topology.png')
+  const cloudsMap = textureLoader.load('https://unpkg.com/three-globe@2.35.1/example/img/earth-clouds.png')
+
+  // Earth sphere with realistic texture
+  const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64)
+  const earthMaterial = new THREE.MeshPhongMaterial({
+    map: earthMap,
+    bumpMap: bumpMap,
+    bumpScale: 0.03,
+    specular: new THREE.Color(0x333333),
+    shininess: 15,
   })
-  globe = new THREE.Mesh(globeGeo, globeMat)
+  globe = new THREE.Mesh(globeGeo, earthMaterial)
   scene.add(globe)
 
-  // Atmosphere glow
-  const glowGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.05, 48, 48)
-  const glowMat = new THREE.MeshBasicMaterial({
-    color: 0xc47a50,
+  // Clouds layer
+  const cloudsGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.008, 64, 64)
+  const cloudsMat = new THREE.MeshPhongMaterial({
+    map: cloudsMap,
     transparent: true,
-    opacity: 0.05,
-    side: THREE.BackSide
+    opacity: 0.35,
+    depthWrite: false,
+  })
+  const clouds = new THREE.Mesh(cloudsGeo, cloudsMat)
+  globe.add(clouds)
+
+  // Atmosphere edge glow
+  const glowGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.15, 64, 64)
+  const glowMat = new THREE.ShaderMaterial({
+    uniforms: {
+      glowColor: { value: new THREE.Color(0x4a90d9) },
+      viewVector: { value: camera.position },
+    },
+    vertexShader: `
+      uniform vec3 viewVector;
+      varying float intensity;
+      void main() {
+        vec3 vNormal = normalize(normalMatrix * normal);
+        vec3 vNormel = normalize(normalMatrix * viewVector);
+        intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 glowColor;
+      varying float intensity;
+      void main() {
+        vec3 glow = glowColor * intensity;
+        gl_FragColor = vec4(glow, intensity * 0.6);
+      }
+    `,
+    side: THREE.BackSide,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
   })
   const glow = new THREE.Mesh(glowGeo, glowMat)
-  globe.add(glow)
+  scene.add(glow)
 
-  // Grid lines (equator, tropics)
-  addGridLine(0, 0xc47a50, 0.1) // equator
-  addGridLine(23.5, 0xc47a50, 0.04) // tropic of cancer
-  addGridLine(-23.5, 0xc47a50, 0.04) // tropic of capricorn
-
-  // ISS Marker (glowing dot) — child of globe so it rotates with it
-  const issGeo = new THREE.SphereGeometry(0.025, 16, 16)
-  const issMat = new THREE.MeshBasicMaterial({ color: 0xc47a50 })
+  // ISS Marker - red dot, child of globe so it rotates with Earth
+  const issGeo = new THREE.SphereGeometry(0.018, 16, 16)
+  const issMat = new THREE.MeshBasicMaterial({ color: 0xff4444 })
   issMarker = new THREE.Mesh(issGeo, issMat)
   globe.add(issMarker)
 
-  // ISS glow ring
-  const ringGeo = new THREE.RingGeometry(0.03, 0.05, 32)
+  // ISS pulsing ring
+  const ringGeo = new THREE.RingGeometry(0.025, 0.045, 32)
   const ringMat = new THREE.MeshBasicMaterial({
-    color: 0xc47a50,
+    color: 0xff4444,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.5,
     side: THREE.DoubleSide
   })
   const ring = new THREE.Mesh(ringGeo, ringMat)
   issMarker.add(ring)
 
-  // Orbit trail — also child of globe
+  // Orbit trail
   const trailMat = new THREE.LineBasicMaterial({
-    color: 0xc47a50,
+    color: 0xff6644,
     transparent: true,
-    opacity: 0.3
+    opacity: 0.6
   })
   const trailGeo = new THREE.BufferGeometry()
   orbitTrail = new THREE.Line(trailGeo, trailMat)
   globe.add(orbitTrail)
 
   // Stars
-  addStars(1500)
+  addStars(2000)
 
-  // Mouse/touch controls
+  // Controls
   setupControls(container)
 
-  // Resize handler
+  // Resize
   const resizeObserver = new ResizeObserver(() => {
     const w = container.clientWidth
     const h = container.clientHeight
@@ -103,28 +141,9 @@ export function initGlobe(container) {
   })
   resizeObserver.observe(container)
 
-  // Start render loop
   animate()
 
   return { scene, camera, renderer, globe, issMarker }
-}
-
-function addGridLine(lat, color, opacity) {
-  const segments = 128
-  const points = []
-  const phi = (90 - lat) * (Math.PI / 180)
-  for (let i = 0; i <= segments; i++) {
-    const theta = (i / segments) * Math.PI * 2
-    const r = GLOBE_RADIUS * 1.001
-    points.push(new THREE.Vector3(
-      -(r * Math.sin(phi) * Math.cos(theta)),
-      r * Math.cos(phi),
-      r * Math.sin(phi) * Math.sin(theta)
-    ))
-  }
-  const geo = new THREE.BufferGeometry().setFromPoints(points)
-  const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity })
-  globe.add(new THREE.Line(geo, mat))
 }
 
 function addStars(count) {
@@ -139,7 +158,7 @@ function addStars(count) {
   }
   const geo = new THREE.BufferGeometry()
   geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-  const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, transparent: true, opacity: 0.7 })
+  const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.8 })
   scene.add(new THREE.Points(geo, mat))
 }
 
@@ -169,7 +188,6 @@ function setupControls(container) {
     isDragging = false
   })
 
-  // Touch support
   container.addEventListener('touchstart', (e) => {
     isDragging = true
     autoRotate = false
@@ -196,9 +214,8 @@ export function updateISSPosition(lat, lng) {
   const pos = latLngToVector3(lat, lng, GLOBE_RADIUS + ISS_ALTITUDE)
   issMarker.position.set(pos.x, pos.y, pos.z)
 
-  // Add to trail
   trailPoints.push(new THREE.Vector3(pos.x, pos.y, pos.z))
-  if (trailPoints.length > 200) trailPoints.shift()
+  if (trailPoints.length > 300) trailPoints.shift()
 
   const trailGeo = new THREE.BufferGeometry().setFromPoints(trailPoints)
   orbitTrail.geometry.dispose()
@@ -209,13 +226,12 @@ function animate() {
   animationId = requestAnimationFrame(animate)
 
   if (autoRotate) {
-    targetRotation.y += 0.002
+    targetRotation.y += 0.001
   }
 
   globe.rotation.x += (targetRotation.x - globe.rotation.x) * 0.05
   globe.rotation.y += (targetRotation.y - globe.rotation.y) * 0.05
 
-  // Pulse ISS marker
   const pulse = 1 + Math.sin(Date.now() * 0.003) * 0.3
   issMarker.scale.setScalar(pulse)
 
