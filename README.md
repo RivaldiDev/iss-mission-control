@@ -14,20 +14,18 @@
 
 ## Overview
 
-Live ISS position tracker fetching real-time coordinates from the Open Notify API. Features a Three.js 3D wireframe globe with orbit trail, crew roster, and scroll-driven animations.
-
-Built with vanilla JavaScript, Vite, and Tailwind CSS 4.
+Live ISS position tracker fetching real-time coordinates from the Open Notify API. Features a 3D wireframe globe with orbit trail, crew roster, and scroll-driven animations.
 
 ## Features
 
 | Area | What it does |
 | --- | --- |
-| **Live Tracking** | ISS position updated every 5 seconds with smooth lerp interpolation. |
-| **3D Globe** | Interactive Three.js wireframe Earth with ISS marker, orbit trail, and grid lines. Drag to rotate. |
+| **Live Tracking** | ISS position updated every 5 seconds with smooth interpolation. |
+| **3D Globe** | Interactive wireframe Earth with ISS marker, orbit trail, and grid lines. Drag to rotate. |
 | **Crew Roster** | Real-time crew list from Open Notify API with featured card layout. |
 | **Orbital Stats** | Speed (27,600 km/h), altitude (408 km), orbit period (92 min), crew count. |
-| **Scroll Animations** | Motion One: staggered entrances, scroll-triggered reveals, parallax, progress bar. |
-| **Impeccable Design** | Editorial layout, OKLCH color system, tinted neutrals, no anti-patterns. |
+| **Scroll Animations** | Staggered entrances, scroll-triggered reveals, parallax, progress bar. |
+| **Design** | Editorial layout, OKLCH color system, tinted neutrals. |
 | **Responsive** | Mobile-first grid with varied stat/card layouts. |
 
 ## Getting Started
@@ -46,9 +44,9 @@ Open [http://localhost:5173](http://localhost:5173).
 ```
 src/
 ├── api.js              # ISS position + crew data fetchers
-├── globe.js            # Three.js wireframe globe + ISS marker
-├── main.js             # Alpine.js store + Motion One animations
-└── style.css           # Tailwind v4 + OKLCH theme (terracotta + olive-sage)
+├── globe.js            # 3D wireframe globe + ISS marker
+├── main.js             # Reactive store + scroll animations
+└── style.css           # Theme tokens + OKLCH color system
 ```
 
 ---
