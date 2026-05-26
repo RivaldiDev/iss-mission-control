@@ -53,7 +53,7 @@ export function initGlobe(container) {
     side: THREE.BackSide
   })
   const glow = new THREE.Mesh(glowGeo, glowMat)
-  scene.add(glow)
+  globe.add(glow)
 
   // Grid lines (equator, tropics)
   addGridLine(0, 0xc47a50, 0.1) // equator
@@ -124,7 +124,7 @@ function addGridLine(lat, color, opacity) {
   }
   const geo = new THREE.BufferGeometry().setFromPoints(points)
   const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity })
-  scene.add(new THREE.Line(geo, mat))
+  globe.add(new THREE.Line(geo, mat))
 }
 
 function addStars(count) {
